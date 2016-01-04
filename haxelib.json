@@ -1,16 +1,22 @@
 {
 	"name": "foxhole",
-	"url" : "http://github.com/back2dos/foxhole/",
 	"license": "MIT",
-	"tags": ["http", "neko", "webserver"],
+	"tags": [
+		"http",
+		"neko",
+		"webserver"
+	],
+	"classPath": "src",
 	"description": "Standalone neko server!",
+	"contributors": [
+		"back2dos"
+	],
+	"releasenote": "First haxelib release.",
 	"version": "0.0.0",
-	"releasenote": "first release",
-	"contributors": ["back2dos"],
+	"url": "http://github.com/back2dos/foxhole/",
 	"dependencies": {
-		"tink_http": "",
 		"tink_tcp": "",
-		"tink_runloop": ""
-	},
-	"classPath": "src" 
+		"tink_runloop": "",
+		"tink_http": ""
+	}
 }
