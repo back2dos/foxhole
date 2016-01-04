@@ -52,8 +52,6 @@ The underlying implementation is really quite simple. There is one common lock, 
 
 Foxhole is based on `tink_http`, which provides an asynchronous cross platform API for handling HTTP. The server runs in an event loop on the main thread. Requests are then handed off to worker threads that handle them synchronously, as explained in the section above. The output is buffered and once the handler has completed, the buffer is streamed onto the outgoing connection. Streaming output will be supported in the future.
 
-By calling Web.run multiple times (with different ports), it is also possible to have multiple servers on different ports in the same neko app. Whether this has any practical is doubtful.
-
 ## Production use
 
 Foxhole is not field tested (nor properly unit tested). There are no known bugs. Instead, there are - in all likelihood - unknown bugs. You have been warned.
