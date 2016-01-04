@@ -31,6 +31,10 @@ class Main {
 
 Should you not call `foxhole.Web.run`, the application will just quit. Should you call it multiple times, you will bind multiple servers. Whether or not that is actually useful remains to be seen. Doing so is advised against.
 
+## Watch mode
+
+If you launch Foxhole with `{ watch: true }` it will watch its own file and exit as soon as it changes. If your IDE starts your neko module as soon as it is compiled, then this will do the trick. Otherwise you can make it run with something like `haxe --run Forever neko <yourModule>.n` using [this tiny helber](https://gist.github.com/back2dos/60015d7c331cff5552ab)
+
 ## Parallelism
 
 Foxhole uses multiple worker threads to execute requests. By default, progress in these threads is mutually exclusive. However with `Foxhole.Web.inParallel(task)` you can execute a `task` while giving other worker threads the opportunity to progress. Good use cases would be:
