@@ -1,0 +1,16 @@
+{
+	"name": "foxhole",
+	"url" : "http://github.com/back2dos/foxhole/",
+	"license": "MIT",
+	"tags": ["http", "neko", "webserver"],
+	"description": "Standalone neko server!",
+	"version": "0.0.0",
+	"releasenote": "first release",
+	"contributors": ["back2dos"],
+	"dependencies": {
+		"tink_http": "",
+		"tink_tcp": "",
+		"tink_runloop": ""
+	},
+	"classPath": "src" 
+}

@@ -127,6 +127,8 @@ class Web {
     return ctx.postData.get();
   
 	function readPostData() {
+    if (!req.header.byName('Content-Length').isSuccess() && req.header.method != POST)
+      return '';
     var queue = new Queue<Outcome<String, Error>>();
     
     RunLoop.current.work(function () {
@@ -295,7 +297,7 @@ class Web {
     
     return ret.sure();
   }
-      
+
 	static public function run(app:App) {    
     
     var container = new TcpContainer(if (app.port == null) 2000 else app.port);
@@ -332,7 +334,12 @@ class Web {
     
     @:privateAccess Sys.print = function (x:Dynamic) 
       if (ctx != null)
-        ctx.output.addString(Std.string(x));
+        switch Std.instance(x, Bytes) {
+          case null:
+            ctx.output.addString(Std.string(x));
+          case v:
+            ctx.output.addBytes(v, 0, v.length);
+        } 
       else
         untyped $print(x);
     
