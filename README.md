@@ -33,7 +33,7 @@ Should you not call `foxhole.Web.run`, the application will just quit. Should yo
 
 ## Watch mode
 
-If you launch Foxhole with `{ watch: true }` it will watch its own file and exit as soon as it changes. If your IDE starts your neko module as soon as it is compiled, then this will do the trick. Otherwise using [this tiny helber](https://gist.github.com/back2dos/60015d7c331cff5552ab) you can make it run forever like so 
+If you launch Foxhole with `{ watch: true }` it will watch its own file and exit as soon as it changes. If your IDE starts your neko module as soon as it is compiled, then this will do the trick. Otherwise using [this tiny helper](https://gist.github.com/back2dos/60015d7c331cff5552ab) you can make it run forever like so 
 
 ```
 haxe --run Forever neko <yourModule>.n
