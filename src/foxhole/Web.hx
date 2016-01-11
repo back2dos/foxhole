@@ -374,7 +374,9 @@ class Web {
       ctx.output = new BytesBuffer();
     }
     
-    return ctx.respond(ctx.output.getBytes());
+    var ret = ctx.respond(ctx.output.getBytes());
+    ctx = null;
+    return ret;
   }
 }
 
