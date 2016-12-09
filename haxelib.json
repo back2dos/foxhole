@@ -11,8 +11,8 @@
 	"contributors": [
 		"back2dos"
 	],
-	"releasenote": "First haxelib release.",
-	"version": "0.0.0",
+	"releasenote": "Update for latest tink_http changes.",
+	"version": "0.0.1",
 	"url": "http://github.com/back2dos/foxhole/",
 	"dependencies": {
 		"tink_tcp": "",
