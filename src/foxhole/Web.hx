@@ -1,6 +1,8 @@
 package foxhole;
+import tink.url.Query;
 
 #if !neko #error #else
+import tink.http.containers.TcpContainer;
 import haxe.CallStack;
 import tink.concurrent.*;
 import haxe.crypto.Base64;
@@ -60,19 +62,19 @@ class Web {
 	static public function getParams() 
     return [
       for (raw in [getParamsString(), getPostData()]) 
-        for (p in KeyValue.parse(raw))
-          p.a => p.b
+        for (p in Query.parseString(raw))
+          p.name => p.value
     ];
   
 	static public function getParamValues(param:String):Array<String> {
-    var ret = [];
+    var ret = new Array<String>();
     
     for (raw in [getParamsString(), getPostData()]) 
-      for (p in KeyValue.parse(raw))
-        if (p.a == '$param[]')
-          ret.push(p.b);
-        else if (p.a.startsWith(param + '[') && p.a.endsWith(']'))
-          ret[Std.parseInt(p.a.substr(param.length + 1))] = p.b;
+      for (p in Query.parseString(raw))
+        if (p.name == '$param[]')
+          ret.push(p.value);
+        else if (p.name.startsWith(param + '[') && p.name.endsWith(']'))
+          ret[Std.parseInt(p.name.substr(param.length + 1))] = p.value;
         
     return ret;
 	}
@@ -86,7 +88,7 @@ class Web {
 	static public function getClientIP()
     return ctx.req.clientIp;
 
-	static public function getURI() 
+	static public function getURI():String 
     return ctx.req.header.uri;
 
 	static public function redirect(url:String) {
@@ -115,11 +117,8 @@ class Web {
     return list;
 	}
     
-	static public function getParamsString()
-    return switch ctx.req.header.uri.indexOf('?') {
-      case -1: '';
-      case v: ctx.req.header.uri.substr(v + 1);
-    }
+	static public function getParamsString():String
+    return ctx.req.header.uri.query;
     
   var postData:Lazy<String>;
   
@@ -131,24 +130,29 @@ class Web {
       return '';
     var queue = new Queue<Outcome<String, Error>>();
     
-    RunLoop.current.work(function () {
-      var buf = new BytesOutput();
-      req.body.pipeTo(Sink.ofOutput('HTTP request body buffer', buf)).handle(function (x) queue.add(switch x {
-        case AllWritten: 
-          Success(buf.getBytes().toString());
-        case SourceFailed(e):
-          Failure(e);
-        default: 
-          throw 'assert';
-      }));
-    });
+    switch req.body {
+      case Plain(source):
+        RunLoop.current.work(function () {
+          var buf = new BytesOutput();
+          source.pipeTo(Sink.ofOutput('HTTP request body buffer', buf)).handle(function (x) queue.add(switch x {
+            case AllWritten: 
+              Success(buf.getBytes().toString());
+            case SourceFailed(e):
+              Failure(e);
+            default: 
+              throw 'assert';
+          }));
+        });
+      default:
+        throw 'should never happen';
+    }
     return queue.await().sure();
 	}
 
 	static public function getCookies():Map<String,String>
     return switch getClientHeader('Cookie') {
       case null: new Map();
-      case v: KeyValue.parseMap(v, ';');
+      case v: [for (p in Query.parseString(v, ';')) p.name.toString() => p.value.toString()];
     }
 
 
@@ -248,7 +252,7 @@ class Web {
                 inc();
                 queue.add(onPart.bind(ext['name'], ext['filename']));
                 chunk.body.pipeTo(writer).handle(function (x) switch x {
-                  case SinkFailed(e, _) | SourceFailed(e):
+                  case SinkFailed(e) | SourceFailed(e):
                     queue.add(e.throwSelf);
                   default:
                     dec();
@@ -332,7 +336,7 @@ class Web {
         }
       });    
     
-    @:privateAccess Sys.print = function (x:Dynamic) 
+    untyped Sys.print = function (x:Dynamic) 
       if (ctx != null)
         switch Std.instance(x, Bytes) {
           case null:
@@ -343,19 +347,17 @@ class Web {
       else
         untyped $print(x);
     
-    @:privateAccess Sys.println = function (x) {
+    untyped Sys.println = function (x) {
       Sys.print('$x\n');
     }
     
-    container.run({
-      serve: function (x) { 
+    container.run(
+      function (x:IncomingRequest):Future<OutgoingResponse> { 
         var trigger = Future.trigger();
         queue.push(new Pair(x, function (res) RunLoop.current.work(function () trigger.trigger(res))));
         return trigger.asFuture();
-      },
-      onError: function (e) {},
-      done: done.asFuture(),
-    });
+      }
+    );
 	}
 
   static function getResponse(r:IncomingRequest, handler) {
