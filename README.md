@@ -33,7 +33,7 @@ Should you not call `foxhole.Web.run`, the application will just quit. Should yo
 
 ## Watch mode
 
-If you launch Foxhole with `{ watch: true }` it will watch its own file and exit as soon as it changes. If your IDE starts your neko module as soon as it is compiled, then this will do the trick. Otherwise using [this tiny helber](https://gist.github.com/back2dos/60015d7c331cff5552ab) you can make it run forever like so 
+If you launch Foxhole with `{ watch: true }` it will watch its own file and exit as soon as it changes. If your IDE starts your neko module as soon as it is compiled, then this will do the trick. Otherwise using [this tiny helper](https://gist.github.com/back2dos/60015d7c331cff5552ab) you can make it run forever like so 
 
 ```
 haxe --run Forever neko <yourModule>.n
@@ -51,8 +51,6 @@ The underlying implementation is really quite simple. There is one common lock, 
 ## Implementation details
 
 Foxhole is based on `tink_http`, which provides an asynchronous cross platform API for handling HTTP. The server runs in an event loop on the main thread. Requests are then handed off to worker threads that handle them synchronously, as explained in the section above. The output is buffered and once the handler has completed, the buffer is streamed onto the outgoing connection. Streaming output will be supported in the future.
-
-By calling Web.run multiple times (with different ports), it is also possible to have multiple servers on different ports in the same neko app. Whether this has any practical is doubtful.
 
 ## Production use
 
